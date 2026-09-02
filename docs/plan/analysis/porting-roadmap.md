@@ -33,7 +33,7 @@ The manifest is the sole status source. This roadmap names all 23 feature IDs an
 ## First actionable implementation sequence
 
 1. Execute `foundation-001` on macOS Apple Silicon: a real resizable native shell with an 800×620 fresh default, complete GPUI text-input/IME handling, and single-owner transcript scrolling. Hidden-until-ready and OS accessibility remain explicit GPUI 0.2.2 gaps rather than passing checks.
-2. Implement `storage-sqlcipher` migrations and integrity checks, then connect `chat-session-stream` persistence and provider-neutral events.
+2. Complete `storage-002b` backup/import/encryption workflows and the `storage-002` integration gate, then connect `chat-session-stream` persistence and provider-neutral events; catalog, repair, dynamic FTS, and projection slices are already delivered.
 3. Add `composer-input-attachments` and `rendering-rich-content` as one user-visible chat slice.
 4. Add `provider-model-registry`, then `agent-tape-tools`; preserve explicit cancellation and recovery semantics.
 5. Implement `workspace-terminal-files` and `managed-runtimes`, enabling the isolated `code-mode-quickjs` helper.

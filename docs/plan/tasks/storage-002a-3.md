@@ -1,7 +1,7 @@
 ---
 id: storage-002a-3
 scope: storage-sqlcipher
-status: ready
+status: done
 depends-on: [storage-002a-2]
 ---
 

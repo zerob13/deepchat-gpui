@@ -340,7 +340,7 @@
         "Platform secret storage"
       ],
       "dependencies": [],
-      "strategy": "storage-001 (done): implement real SQLCipher connection, startup classification, high-water-mark runner, quarantine, and injected Keychain/manual secret-store ports with generated fixtures only; storage-002a-1 (done): complete the production static catalog, physical/runtime owner topology, migrations through 69, finalizers, and required rebuild recovery; storage-002a-2 (done): complete schema diagnosis/repair, pre-repair backup, afterRepair hooks, and startup one-shot repair; later storage-002 tasks retain FTS/dynamic-DDL, backup/import/overwrite, encryption-change, and integration workflows.",
+      "strategy": "storage-001 (done): implement the real SQLCipher connection, startup classification, high-water-mark runner, quarantine, and injected Keychain/manual secret-store ports with generated fixtures only; storage-002a-1 (done): complete the production static catalog, physical/runtime owner topology, migrations through 69, finalizers, and required rebuild recovery; storage-002a-2 (done): complete schema diagnosis/repair, pre-repair backup, afterRepair hooks, and startup one-shot repair; storage-002a-3 (done): complete connection-scoped FTS capability ownership, dynamic Agent Memory/Tape Search FTS, Tape Search and memory-ingestion projections, and canonical copy exclusions; storage-002b and the final storage-002 integration gate retain backup/import/overwrite, encryption-change, and end-to-end interoperability.",
       "targetPaths": [
         "crates/deepchat-services",
         "crates/deepchat-platform",
@@ -362,8 +362,9 @@
       "status": "implemented",
       "platformStatus": {},
       "remainingGaps": [
-        "storage-002a-2 implements schema diagnosis/repair and startup one-shot recovery; later storage-002 tasks implement the complete connection-scoped FTS/projection lifecycle",
-        "later storage-002 tasks implement backup/import, migration overwrite, and encryption-change workflows plus the end-to-end integration gate",
+        "storage-002b must implement backup/import, migration overwrite, and encryption enable/change/disable workflows",
+        "the final storage-002 integration gate must prove migrate, repair, dynamic FTS/projections, backup, restore, and encryption-change interoperate end to end",
+        "non-macOS runtime verification remains outstanding",
         "Keychain service/account naming remains target policy; no frozen reference contract exists"
       ]
     },

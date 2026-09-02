@@ -2,7 +2,7 @@
 
 ## Judgment
 
-`storage-sqlcipher` is **implemented**, not verified. The implemented surface includes the `storage-001` SQLCipher/startup foundation, the `storage-002a-1` production static catalog and global migration-owner layer, and the independently reviewed `storage-002a-2` schema diagnosis/repair, production repair hooks, backup ordering, and startup one-shot recovery slice. The complete connection-scoped FTS/projection lifecycle, backup/import, migration overwrite, encryption change, non-macOS runtime evidence, and the full integration gate remain later tasks.
+`storage-sqlcipher` is **implemented**, not verified. The implemented surface includes the `storage-001` SQLCipher/startup foundation; the `storage-002a-1` production static catalog and global migration-owner layer; the `storage-002a-2` schema diagnosis/repair, production repair hooks, backup ordering, and startup one-shot recovery slice; and the independently reviewed `storage-002a-3` connection-scoped FTS capability, dynamic Agent Memory/Tape Search FTS, Tape Search and memory-ingestion projections, and canonical copy-exclusion slice. Backup/import, migration overwrite, encryption change, non-macOS runtime evidence, and the full integration gate remain later tasks.
 
 ## Frozen reference
 
@@ -24,8 +24,9 @@ The checked-in catalog metadata was extracted by executing the reference owner c
 | Functionally empty runtime versions | 19 (`1-10`, `39`, `40`, `53-58`, `63`) |
 | Focused `storage-002a-1` integration tests | 14 passed, 0 failed |
 | Focused `storage-002a-2` integration tests | 24 passed, 0 failed |
-| Private startup fault tests | 4 passed, 0 failed |
-| Full workspace tests | 88 passed, 0 failed |
+| Focused `storage-002a-3` FTS/projection tests | 24 passed, 0 failed |
+| `deepchat-services` unit tests | 33 passed, 0 failed |
+| Full workspace/all-target tests | 120 passed, 0 failed |
 
 The three legacy definitions (`conversations`, `messages`, `message_attachments`) remain catalog-only and are excluded from fresh creation/runtime migration. `acp_turns` remains physical-create-only. The four settings owners remain physical/runtime owners but stay outside both diagnosis catalogs. Static creation contains no FTS virtual-table SQL.
 
@@ -35,16 +36,17 @@ The three legacy definitions (`conversations`, `messages`, `message_attachments`
 |---|---|
 | `cargo fmt --check` | PASS |
 | `cargo clippy --workspace --all-targets --all-features -- -D warnings` | PASS |
-| `cargo test --workspace` | PASS — 88 passed, 0 failed |
+| `cargo test --workspace --all-targets --no-fail-fast` | PASS — 120 passed, 0 failed |
 | `cargo test -p deepchat-services --test production_schema` | PASS — 14 passed, 0 failed |
 | `cargo test -p deepchat-services --test schema_repair` | PASS — 24 passed, 0 failed |
-| `cargo test -p deepchat-services startup::tests -- --nocapture` | PASS — 4 startup unit tests passed |
+| `cargo test -p deepchat-services --test fts_projection` | PASS — 24 passed, 0 failed |
 | `uv run python tools/parity-audit/validate.py` | PASS — `parity contract: PASS` |
-| `git diff --check` | PASS, but weak because the repository has no tracked files/commit |
-| Explicit untracked-tree trailing-whitespace scan | PASS |
-| Database/WAL/SHM/repair-backup pollution scan | PASS |
+| `git diff --check` | PASS |
+| Tracked-tree trailing-whitespace and changed-file developer-path scans | PASS |
+| Database/WAL/SHM/backup artifact scan | PASS |
+| Changed-diff credential-signature scan | PASS |
 
-Full workspace test accounting: 88 passed, 0 failed. The focused storage suites include 14 production-schema integration tests, 24 schema-repair integration tests, and 4 private startup fault tests.
+Full workspace/all-target test accounting: 120 passed, 0 failed. The focused storage suites include 14 production-schema integration tests, 24 schema-repair integration tests, 24 dynamic FTS/projection integration tests, and 33 `deepchat-services` unit tests.
 
 ## Acceptance evidence
 
@@ -59,15 +61,19 @@ Full workspace test accounting: 88 passed, 0 failed. The focused storage suites 
 9. Unit tests cover the exact v42 `sqlite_temp_master` guard, absent-marker return, matching-path update, and marker cleanup. `schema_finalizer_rejects_corrupted_constraints_and_rows` adversarially covers NOT NULL/default/CHECK and invalid temporal/scope rows; `schema_finalizer_maintains_memory_and_directive_indexes` removes every canonical agent-memory index, installs obsolete/conflicting indexes, then proves the full base/retired/conflict/canonical maintenance sequence recreates the canonical identities and drops retired/conflicting names.
 10. `required_dynamic_finalizers_install_real_triggers_and_errors_are_redacted` proves live-delegation and agent-memory finalizers install real trigger artifacts and public failures remain source-free/redacted.
 
-The static finalizer deliberately excludes only connection-scoped tokenizer selection, FTS virtual tables/triggers, and projection rebuild lifecycle, which remain assigned to `storage-002a-3`.
+The static finalizer deliberately excludes connection-scoped tokenizer selection, FTS virtual tables, and projection rebuild lifecycle because `storage-002a-3` owns them as dynamic per-connection and micro-versioned state rather than global schema migrations.
 
 ## Schema repair and startup recovery evidence
 
 Independent review [storage-002a-2 review 05](../../../docs/plan/reviews/storage-002a-2-05.md) passed all ten acceptance-evidence groups. The generated-fixture suites prove the exact ordered 41-definition manual and 38-definition startup catalogs, diagnosis kinds and ordering, checkpoint/copy/transaction sequencing, overwrite-capable main-file backup, rollback with backup retention, exact added-column sets, all four production repair hooks, safe classifier behavior, and the complete one-shot startup continuation/failure/refusal matrix. Public observations and errors remain free of table, column, path, SQL, and raw driver identities.
 
+## Dynamic FTS and projection evidence
+
+Independent review [storage-002a-3 review 03](../../../docs/plan/reviews/storage-002a-3-03.md) passed all 17 acceptance-evidence groups against the frozen reference. Generated isolated SQLCipher fixtures prove connection-scoped `trigram`/`unicode61`/unavailable probing and reopen behavior; Agent Memory schema 4/policy 3 lifecycle, authoritative recall, mutation failure recovery, and cooldown; Tape Search projection v9 lifecycle, FTS/LIKE authority, normalization, pruning, and atomic rollback; memory-ingestion projection v1 effective semantics, authoritative Tape composition, and concurrent current-range reads; and the exact six-name copy-exclusion boundary. The focused suite passes 24 tests, including keyed temporary-file reopen and wrong-key evidence, without accessing real profiles, Keychain items, providers, credentials, or sessions.
+
 ## Remaining scope
 
-- Complete connection-scoped FTS/tokenizer/projection lifecycle.
-- Backup/import/overwrite and encryption enable/change/disable workflows.
-- Full integration gate and non-macOS runtime verification.
+- `storage-002b`: backup/import/overwrite and encryption enable/change/disable workflows.
+- Final `storage-002` integration gate proving migration, repair, dynamic FTS/projections, backup, restore, and encryption change interoperate.
+- Non-macOS runtime verification.
 - Keychain service/account naming remains target policy because the frozen reference has no corresponding contract.

@@ -50,9 +50,9 @@ The full surface is large, so split it into dependency-ordered implementation ta
 
 - `storage-002a-1` — complete production catalog topology, all physical/runtime owners, global migrations through 69, programmatic finalizers, and required table rebuild/recovery behavior.
 - `storage-002a-2` — schema diagnosis/repair, pre-repair backup, `afterRepair` hooks, and startup one-shot repair over the real catalog from `storage-002a-1`.
-- `storage-002a-3` — connection-scoped tokenizer probing, dynamic FTS DDL, memory/tape projections, and their independent micro-version invalidation over the real catalog/repair surface.
-- `storage-002b` — backup archive, import increment/overwrite, restore-on-failure, encryption enable/change-password/disable, copy order/exclusions, validation tables, and rollback.
-- `storage-002` (integration) — one end-to-end vertical slice: a generated SQLCipher database is migrated to v69, repaired, backed up, then restored via overwrite and encryption-change, proving the real catalog/FTS/backup/import implementations interoperate.
+- `storage-002a-3` (done) — connection-scoped tokenizer probing, dynamic FTS DDL, memory/tape projections, and their independent micro-version invalidation over the real catalog/repair surface.
+- `storage-002b` (next) — backup archive, import increment/overwrite, restore-on-failure, encryption enable/change-password/disable, copy order/exclusions, validation tables, and rollback.
+- `storage-002` (integration, after `storage-002b`) — one end-to-end vertical slice: a generated SQLCipher database is migrated to v69, repaired, backed up, then restored via overwrite and encryption-change, proving the real catalog/FTS/backup/import implementations interoperate.
 
 ## Contracts
 
