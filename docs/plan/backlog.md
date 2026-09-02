@@ -5,8 +5,8 @@ Backlog items are sequencing notes; feature completion remains exclusively in `p
 - Audit GPUI feature selection independently on macOS x86_64, Windows, and Linux targets.
 - Resolve GPUI 0.2.2 hidden-until-ready parity or record an approved waiver.
 - Design and verify an OS accessibility adapter because GPUI 0.2.2 exposes no confirmed public accessibility-tree API.
-- After `storage-001`, execute the ready `storage-002a-2` repair slice, then continue the remaining `storage-002` storage slices before connecting persistence and chat streaming through real storage implementations.
-- `storage-002`: complete production schema catalog and repair/FTS/dynamic-DDL/backup-import/migration-overwrite workflows after `storage-001`; `storage-002a-1` is done, `storage-002a-2` is ready for diagnosis/repair/startup recovery, and later slices cover FTS/dynamic DDL, backup/import/encryption, and integration.
+- Execute the ready `storage-002a-3` dynamic FTS/projection slice, then continue `storage-002b` and the `storage-002` integration gate before connecting persistence and chat streaming through real storage implementations.
+- `storage-002`: complete production schema catalog and repair/FTS/dynamic-DDL/backup-import/migration-overwrite workflows after `storage-001`; `storage-002a-1` and `storage-002a-2` are done, `storage-002a-3` is ready, and later slices cover backup/import/encryption and integration.
 - Add provider/model registry before agent, MCP, skills, and memory integrations.
 - Implement isolated Code Mode and WebView policy before browser/computer-use surfaces.
 - Complete platform integrations, settings, managed runtimes, CLI, packaging, and full parity rediscovery.

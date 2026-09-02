@@ -24,9 +24,6 @@ jobs:
       - name: Install Rust components
         run: rustup component add clippy rustfmt
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-
       - name: Check formatting
         run: cargo fmt --check
 
@@ -36,22 +33,18 @@ jobs:
       - name: Test workspace
         run: cargo test --workspace
 
-      - name: Audit parity contract
-        run: uv run python tools/parity-audit/validate.py
-
   portable-storage:
     name: Storage services / Linux
     runs-on: ubuntu-24.04
     timeout-minutes: 45
+    env:
+      DEEPCHAT_REFERENCE_REPOSITORY: ${{ runner.temp }}/deepchat-reference
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
       - name: Install Rust components
         run: rustup component add clippy rustfmt
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
 
       - name: Check formatting
         run: cargo fmt --check
@@ -62,5 +55,15 @@ jobs:
       - name: Test portable storage crates
         run: cargo test -p deepchat-services -p deepchat-platform
 
+      - name: Check out frozen reference
+        shell: bash
+        run: |
+          git init "$DEEPCHAT_REFERENCE_REPOSITORY"
+          git -C "$DEEPCHAT_REFERENCE_REPOSITORY" fetch --depth=1 \
+            https://github.com/ThinkInAIXYZ/deepchat.git \
+            ca75acfdc680fa3d0a2bbde13575fa711d08a3bd
+          test "$(git -C "$DEEPCHAT_REFERENCE_REPOSITORY" rev-parse FETCH_HEAD)" = \
+            ca75acfdc680fa3d0a2bbde13575fa711d08a3bd
+
       - name: Audit parity contract
-        run: uv run python tools/parity-audit/validate.py
+        run: python3 tools/parity-audit/validate.py

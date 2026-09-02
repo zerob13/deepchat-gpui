@@ -9,6 +9,7 @@ This directory coordinates implementation without duplicating feature status. `p
 - [storage-002](tasks/storage-002.md)
 - [storage-002a-1](tasks/storage-002a-1.md)
 - [storage-002a-2](tasks/storage-002a-2.md)
+- [storage-002a-3](tasks/storage-002a-3.md)
 - [Backlog](backlog.md)
 
 Use the loop: select an unblocked manifest feature, write the smallest independently verifiable task, implement its complete vertical slice, verify it, store evidence under `parity/evidence/<feature-id>/`, then update the manifest. Task status coordinates delivery only; feature/platform completion remains exclusively in the manifest.

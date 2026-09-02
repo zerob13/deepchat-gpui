@@ -1,19 +1,24 @@
 #!/usr/bin/env python3
 """Dependency-free validator for the frozen parity contracts."""
-import json, subprocess, sys
+import json, os, subprocess, sys
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
 REF=ROOT/'parity/reference-baseline.json'; MAN=ROOT/'parity/manifest.json'
+REFERENCE_REPOSITORY_ENV='DEEPCHAT_REFERENCE_REPOSITORY'
 VALID={'identified','specified','implemented','verified','blocked','not_applicable','waived'}
 KINDS={'source','test','release-notes','workflow','configuration'}
 PLATFORMS={'macos-arm64':'aarch64-apple-darwin','macos-x64':'x86_64-apple-darwin','windows-arm64':'aarch64-pc-windows-msvc','windows-x64':'x86_64-pc-windows-msvc','linux-arm64':'aarch64-unknown-linux-gnu','linux-x64':'x86_64-unknown-linux-gnu'}
 
 def fail(msg): print(f'ERROR: {msg}'); return False
+def reference_repository(baseline):
+    override=os.environ.get(REFERENCE_REPOSITORY_ENV)
+    return override if override else baseline['reference']['repository']
 def main():
     ok=True
     try: baseline=json.loads(REF.read_text()); manifest=json.loads(MAN.read_text())
     except Exception as e: return int(fail(f'invalid JSON: {e}') is False)
+    repository=reference_repository(baseline)
     if baseline['reference']['commit'] != manifest['referenceCommit']: ok=fail('reference commits differ') and ok
     if set(baseline['discovery']['statusVocabulary']) != VALID: ok=fail('baseline status vocabulary mismatch') and ok
     if set(manifest['statusValues']) != VALID: ok=fail('manifest status vocabulary mismatch') and ok
@@ -32,7 +37,7 @@ def main():
         if platforms != ['all'] and set(ps) != set(platforms): ok=fail(f"{f['id']}: platformStatus incomplete") and ok
         for ev in f.get('referenceEvidence',[]):
             if not isinstance(ev,dict) or set(ev)-{'kind','path','selector'} or not {'kind','path'}<=set(ev) or ev['kind'] not in KINDS or not isinstance(ev['path'],str): ok=fail(f"{f['id']}: malformed evidence") and ok; continue
-            cmd=['git','-C',baseline['reference']['repository'],'cat-file','-e',baseline['reference']['commit']+':'+ev['path']]
+            cmd=['git','-C',repository,'cat-file','-e',baseline['reference']['commit']+':'+ev['path']]
             if subprocess.run(cmd,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode: ok=fail(f"{f['id']}: missing frozen path {ev['path']}") and ok
         if s in {'verified','waived','blocked'} and not f.get('gaps') and s!='waived': ok=fail(f"{f['id']}: {s} requires gaps/reason") and ok
         if s=='verified' and not f.get('verification'): ok=fail(f"{f['id']}: verified requires verification") and ok

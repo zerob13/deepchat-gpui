@@ -29,4 +29,13 @@ The dependency-free validator checks JSON shape, status vocabulary, unique featu
 uv run python tools/parity-audit/validate.py
 ```
 
+By default, frozen evidence is read from the local repository recorded in `parity/reference-baseline.json`. CI and other machines can point the validator at an exact checkout without changing the frozen baseline:
+
+```sh
+DEEPCHAT_REFERENCE_REPOSITORY=/path/to/deepchat-2 \
+  uv run python tools/parity-audit/validate.py
+```
+
+The override repository must contain the recorded commit; every evidence path is still checked against that immutable commit.
+
 Evidence objects use `{ "kind": "source|test|release-notes|workflow|configuration", "path": "repository-relative/path", "selector": "optional locator" }`. A feature with `platforms: ["all"]` must have an empty `platformStatus`; platform-specific features must enumerate every platform ID. `identified` means static evidence was located, not that behavior was implemented or verified.
