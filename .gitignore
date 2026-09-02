@@ -1,0 +1,10 @@
+/target/
+/artifacts/
+/.cargo/
+*.log
+!/parity/evidence/**/*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+/parity/evidence/**/actual/

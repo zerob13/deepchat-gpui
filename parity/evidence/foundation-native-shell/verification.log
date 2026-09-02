@@ -1,0 +1,32 @@
+$ cargo fmt --check
+PASS
+
+$ cargo clippy --workspace --all-targets --all-features -- -D warnings
+    Checking deepchat-app v0.1.0 (/Users/colab/Documents/workspace/deepchat-gpui/crates/deepchat-app)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.08s
+PASS
+
+$ cargo test --workspace
+   Compiling deepchat-app v0.1.0 (/Users/colab/Documents/workspace/deepchat-gpui/crates/deepchat-app)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.36s
+     Running unittests src/main.rs (target/debug/deps/deepchat_app-672dc86227a85ed2)
+
+running 9 tests
+test tests::active_composition_prevents_submit_and_unavailable_submit_preserves_draft ... ok
+test tests::cut_copy_and_paste_replacement_semantics_preserve_unicode ... ok
+test tests::newline_clipboard_style_edits_and_undo_redo_preserve_unicode ... ok
+test tests::converts_utf8_and_utf16_without_splitting_surrogate_pairs ... ok
+test tests::newline_visualization_preserves_editable_byte_indices_and_ranges ... ok
+test tests::ime_composition_updates_coalesce_into_one_undo_unit ... ok
+test tests::placeholder_hit_testing_always_stays_in_the_empty_editable_domain ... ok
+test tests::marked_text_replaces_requested_range_and_tracks_relative_selection ... ok
+test tests::long_fixture_updates_do_not_move_transcript_after_leaving_tail ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+$ uv run python tools/parity-audit/validate.py
+parity contract: PASS
+
+$ git diff --check
+PASS

@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 2,
+  "reference": {
+    "repository": "/Users/colab/Documents/workspace/deepchat-2",
+    "remote": "https://github.com/ThinkInAIXYZ/deepchat.git",
+    "tag": "v1.1.1",
+    "commit": "ca75acfdc680fa3d0a2bbde13575fa711d08a3bd",
+    "version": "1.1.1",
+    "frozenAt": "2026-09-02"
+  },
+  "platforms": [
+    { "id": "macos-arm64", "rustTarget": "aarch64-apple-darwin", "packages": ["dmg", "zip"] },
+    { "id": "macos-x64", "rustTarget": "x86_64-apple-darwin", "packages": ["dmg", "zip"] },
+    { "id": "windows-arm64", "rustTarget": "aarch64-pc-windows-msvc", "packages": ["nsis"] },
+    { "id": "windows-x64", "rustTarget": "x86_64-pc-windows-msvc", "packages": ["nsis"] },
+    { "id": "linux-arm64", "rustTarget": "aarch64-unknown-linux-gnu", "packages": ["appimage", "tar.gz"] },
+    { "id": "linux-x64", "rustTarget": "x86_64-unknown-linux-gnu", "packages": ["appimage", "tar.gz"] }
+  ],
+  "evidenceContract": {
+    "requiredFields": ["kind", "path"],
+    "optionalFields": ["selector"],
+    "kinds": ["source", "test", "release-notes", "workflow", "configuration"],
+    "pathRule": "path is repository-relative and must resolve at reference.commit; selector is an exact symbol, test name, heading, or other locator within that path when supplied."
+  },
+  "comparisonEnvironment": {
+    "locale": "zh-CN",
+    "theme": "light",
+    "window": { "width": 800, "height": 620, "purpose": "default application window" },
+    "narrowWindowRegression": { "width": 800, "height": 640, "purpose": "narrow-layout regression test only; not the default window" },
+    "display": { "width": 1920, "height": 1080, "scaleFactor": 1.0 },
+    "profile": "synthetic-isolated"
+  },
+  "surfaces": {
+    "routes": [
+      { "id": "route.chat", "kind": "renderer", "path": "/chat", "source": "src/renderer/src/router/index.ts" },
+      { "id": "route.plugins", "kind": "renderer", "path": "/plugins", "source": "src/renderer/src/router/index.ts" },
+      { "id": "route.plugins.skills", "kind": "renderer", "path": "/plugins/skills", "source": "src/renderer/src/router/index.ts" },
+      { "id": "route.plugins.mcp", "kind": "renderer", "path": "/plugins/mcp", "source": "src/renderer/src/router/index.ts" },
+      { "id": "route.plugins.ocr", "kind": "renderer", "path": "/plugins/builtin/ocr", "source": "src/renderer/src/router/index.ts" },
+      { "id": "route.plugins.detail", "kind": "renderer", "path": "/plugins/:pluginId", "source": "src/renderer/src/router/index.ts" },
+      { "id": "route.welcome", "kind": "renderer", "path": "/welcome", "source": "src/renderer/src/router/index.ts" }
+    ],
+    "settings": ["settings-overview", "settings-dashboard", "settings-common", "settings-display", "settings-environments", "settings-provider", "settings-deepchat-agents", "settings-acp", "settings-mcp", "settings-ocr", "settings-toolchains", "settings-notifications-hooks", "settings-scheduled-tasks", "settings-plugins", "settings-prompt", "settings-memory", "settings-knowledge-base", "settings-remote", "settings-database", "settings-shortcut", "settings-about", "settings-debug"],
+    "windows": [
+      { "id": "window.splash", "source": "src/main/app/splashWindow.ts" },
+      { "id": "window.main", "source": "src/main/desktop/window/index.ts" },
+      { "id": "window.settings", "source": "src/main/desktop/window/index.ts" },
+      { "id": "window.floating-chat", "source": "src/main/desktop/window/FloatingChatWindow.ts" },
+      { "id": "window.floating-button", "source": "src/main/desktop/floatingButton/FloatingButtonWindow.ts" },
+      { "id": "window.oauth", "source": "src/main/provider/auth/index.ts" },
+      { "id": "window.plugin-settings", "source": "src/main/desktop/pluginSettingsWindow.ts" }
+    ],
+    "deepLinks": [
+      { "id": "deeplink.start", "scheme": "deepchat", "path": "start", "source": "src/main/deeplink/index.ts" },
+      { "id": "deeplink.mcp-install", "scheme": "deepchat", "path": "mcp/install", "source": "src/main/deeplink/index.ts" },
+      { "id": "deeplink.provider-install", "scheme": "deepchat", "path": "provider/install", "source": "src/main/deeplink/index.ts" }
+    ],
+    "shortcuts": ["NewConversation", "QuickSearch", "ToggleSidebar", "ToggleWorkspace", "NewWindow", "CloseWindow", "ZoomIn", "ZoomOut", "ZoomResume", "GoSettings", "CleanChatHistory", "DeleteConversation", "ShowHideWindow", "Quit"],
+    "contracts": {
+      "typedRoutes": { "count": 564, "source": { "kind": "source", "path": "src/shared/contracts", "selector": "typed route definitions" } },
+      "typedEvents": { "count": 141, "source": { "kind": "source", "path": "src/shared/contracts", "selector": "typed event definitions" } },
+      "schemaCatalog": {
+        "catalogDefinitions": { "count": 41, "source": { "kind": "source", "path": "src/main/data/schemaCatalog.ts", "selector": "CATALOG_DEFINITIONS" } },
+        "createMainSchemaCatalog": { "count": 39, "source": { "kind": "source", "path": "src/main/data/schemaCatalog.ts", "selector": "createMainSchemaCatalog.createTables" } },
+        "migrationTables": { "count": 38, "source": { "kind": "source", "path": "src/main/data/schemaCatalog.ts", "selector": "migrationTables (acpTurns excluded)" } }
+      }
+    },
+    "capabilities": ["chat-and-streaming", "multi-window-and-tabs", "sessions-and-tape", "provider-and-model-management", "deepchat-agents", "acp-agents", "mcp-resources-prompts-tools-apps", "skills", "code-and-minimal-tool-modes", "quick-search-and-history-search", "attachments-image-pdf-ocr", "markdown-code-table-math-mermaid-artifacts", "browser-and-computer-use", "workspace-files-terminal-and-pty", "memory-and-knowledge-base", "scheduled-tasks", "remote-control", "notifications-and-hooks", "import-export-backup-and-recovery", "proxy-and-privacy", "tray-single-instance-and-updater", "cli-and-managed-runtimes", "plugins"],
+    "locales": ["da-DK", "de-DE", "en-US", "es-ES", "fa-IR", "fr-FR", "he-IL", "id-ID", "it-IT", "ja-JP", "ko-KR", "ms-MY", "pl-PL", "pt-BR", "ru-RU", "tr-TR", "vi-VN", "zh-CN", "zh-HK", "zh-TW"]
+  },
+  "discovery": {
+    "statusVocabulary": ["identified", "specified", "implemented", "verified", "blocked", "not_applicable", "waived"],
+    "staticPass": "incomplete",
+    "dynamicPass": "not_started",
+    "fullRediscovery": "not_started",
+    "notes": "Static evidence is identified but not exhaustively verified. No discovery state implies implementation or parity verification."
+  }
+}

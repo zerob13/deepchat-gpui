@@ -1,0 +1,34 @@
+Workspace verification summary (2026-09-02):
+- cargo fmt --check: PASS
+- cargo clippy --workspace --all-targets --all-features -- -D warnings: PASS
+- cargo test --workspace: PASS (88 passed, 0 failed)
+- cargo test -p deepchat-services --test production_schema: PASS (14 passed, 0 failed)
+- cargo test -p deepchat-services --test schema_repair: PASS (24 passed, 0 failed)
+- cargo test -p deepchat-services startup::tests -- --nocapture: PASS (4 startup unit tests passed)
+- uv run python tools/parity-audit/validate.py: PASS (parity contract: PASS)
+- git diff --check: PASS (weak because repository has no tracked files/commit)
+- explicit untracked-tree trailing-whitespace scan: PASS
+- database/WAL/SHM/repair-backup pollution scan: PASS
+- absolute local-path scan: PASS for safety; matches are deliberate frozen-reference declarations only
+
+Focused storage-002a-1 gates:
+- file-backed historical v10 production-path migration, exact 10..69 markers, row preservation, and fresh static schema signature: PASS
+- static-create/marker crash-gap production reopen and row preservation: PASS
+- v42 sqlite_temp_master absent-marker guard and matching cleanup path: PASS (2 unit tests)
+- schema NOT NULL/default/CHECK and invalid temporal/scope adversarial failures: PASS
+- base/retired/conflict and directive index maintenance/assertions: PASS
+
+Focused storage-002a-2 gates:
+- exact ordered 41-entry manual and 38-entry startup catalogs with legacy/settings exclusions: PASS
+- diagnosis normalization, quoting, kinds, ordering, repairability, and redaction: PASS
+- checkpoint, main-file backup, overwrite, one-transaction repair, rollback, and backup retention: PASS
+- all four production repair hooks and complete required agent-memory artifacts: PASS
+- repair SQL and each real hook failure rollback: PASS
+- construction-time recognized repair plus destructive/unclassified/second-failure refusal: PASS
+- diagnosis/manual/residual continuations, repair/close/open/reopen failure, and observer isolation: PASS
+- real Storage startup uses 38 definitions; explicit repair executes all 41 definitions: PASS
+
+Independent final review:
+- docs/plan/reviews/storage-002a-2-05.md: PASS; no P1, P2, or P3 findings
+
+No real profile, database, Keychain item, provider credential, or provider session was accessed.

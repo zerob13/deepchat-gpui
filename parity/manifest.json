@@ -1,0 +1,1565 @@
+{
+  "schemaVersion": 1,
+  "referenceCommit": "ca75acfdc680fa3d0a2bbde13575fa711d08a3bd",
+  "statusValues": [
+    "identified",
+    "specified",
+    "implemented",
+    "verified",
+    "blocked",
+    "not_applicable",
+    "waived"
+  ],
+  "features": [
+    {
+      "id": "foundation-native-shell",
+      "area": "foundation",
+      "title": "Native GPUI window shell",
+      "userVisibleBehavior": "Launches a native DeepChat shell with the reference fresh-window bounds, title region, sidebar, empty conversation region, native composer input/IME/clipboard foundations, and single-owner transcript scrolling. OS accessibility and hidden-until-ready parity remain explicit gaps.",
+      "platforms": [
+        "macos-arm64",
+        "macos-x64",
+        "windows-arm64",
+        "windows-x64",
+        "linux-arm64",
+        "linux-x64"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/desktop/window/index.ts"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/desktop/tab.ts"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/src/apps/chat-main/ChatTabView.vue"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/01-launch.smoke.spec.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/31-chat-scroll-ownership.smoke.spec.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/32-composer-width.smoke.spec.ts"
+        }
+      ],
+      "contracts": [
+        "Fresh default main window 800x620 with no minimum-size contract",
+        "Ordinary UI is native GPUI",
+        "EntityInputHandler preserves UTF-8/UTF-16 selection and marked-text semantics",
+        "Composer does not submit during active IME composition",
+        "Transcript owns exactly one ScrollHandle and follows tail only while at bottom",
+        "Semantic role/label data is modeled without claiming OS accessibility parity"
+      ],
+      "dependencies": [],
+      "strategy": "Implement one real crates/deepchat-app vertical slice on macOS Apple Silicon using gpui 0.2.2 with default-features=false plus font-kit and macos-blade. Do not create speculative boundary crates or fake product data.",
+      "targetPaths": [
+        "Cargo.toml",
+        "Cargo.lock",
+        "crates/deepchat-app",
+        "docs/ui/main-window.md",
+        "parity/evidence/foundation-native-shell"
+      ],
+      "verification": [
+        "cargo fmt --check",
+        "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+        "cargo test --workspace",
+        "cargo run -p deepchat-app",
+        "macOS Apple Silicon native window, keyboard, clipboard, IME, UTF-8/UTF-16 selection, resize, and scroll evidence",
+        "Hidden-until-ready and OS accessibility are recorded as unverified gaps, not passing checks"
+      ],
+      "evidencePaths": [
+        "parity/evidence/foundation-native-shell/"
+      ],
+      "status": "implemented",
+      "platformStatus": {
+        "macos-arm64": "implemented",
+        "macos-x64": "identified",
+        "windows-arm64": "identified",
+        "windows-x64": "identified",
+        "linux-arm64": "identified",
+        "linux-x64": "identified"
+      },
+      "remainingGaps": [
+        "Manually verify live native IME candidate interaction, clipboard shortcuts, and long-fixture scrolling before advancing macOS Apple Silicon to verified",
+        "GPUI 0.2.2 has no verified public per-window reveal API matching Electron show:false -> ready-to-show -> show/focus",
+        "GPUI 0.2.2 has no verified public OS accessibility-tree API",
+        "Audit GPUI feature sets on macOS x86_64, Windows, and Linux and run native checks on every frozen reference platform"
+      ]
+    },
+    {
+      "id": "chat-session-stream",
+      "area": "chat",
+      "title": "Persistent chat and provider-neutral streaming",
+      "userVisibleBehavior": "Creates, restores, searches, branches, retries, stops, and resumes conversations while rendering incremental provider output without losing committed content.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/session"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/provider"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/settings/components",
+          "selector": "provider settings"
+        },
+        {
+          "kind": "source",
+          "path": "src/shared/contracts/routes/chat.routes.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/02-chat-basic.smoke.spec.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/03-session-persistence.smoke.spec.ts"
+        }
+      ],
+      "contracts": [
+        "Durable session and message identities",
+        "Abortable streaming",
+        "No replay after observable output commits",
+        "Provider-neutral text/reasoning/tool/media/usage events",
+        "Retry variants and branching"
+      ],
+      "dependencies": [
+        "foundation-native-shell",
+        "storage-sqlcipher"
+      ],
+      "strategy": "Implement domain and fake-server protocol fixtures before real provider credentials.",
+      "targetPaths": [
+        "crates/deepchat-core",
+        "crates/deepchat-services",
+        "crates/deepchat-ui"
+      ],
+      "verification": [
+        "contract tests",
+        "local fake-server streaming tests",
+        "restart/recovery integration tests",
+        "reference-target UI trace comparison"
+      ],
+      "evidencePaths": [
+        "parity/evidence/chat-session-stream/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Complete request/stream/event contract extraction",
+        "Implement"
+      ]
+    },
+    {
+      "id": "composer-input-attachments",
+      "area": "chat",
+      "title": "Composer, mentions, skills, files, history, paste, and attachments",
+      "userVisibleBehavior": "Supports multilingual text and IME, persisted drafts, mentions, command and skill chips, file/image/PDF attachments, paste, history, and submit/stop controls.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/renderer/src/components/chat"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/src/features/chat-page/model/composerDraftState.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/32-composer-width.smoke.spec.ts"
+        }
+      ],
+      "contracts": [
+        "Draft persistence",
+        "Attachment identity and mode",
+        "IME-safe submit",
+        "No silent draft loss",
+        "Bounded input and file handling"
+      ],
+      "dependencies": [
+        "foundation-native-shell",
+        "chat-session-stream"
+      ],
+      "strategy": "Native GPUI input; no WebView editor.",
+      "targetPaths": [
+        "crates/deepchat-ui",
+        "crates/deepchat-core"
+      ],
+      "verification": [
+        "IME/manual and automated key tests",
+        "paste/file fixtures",
+        "draft restart tests",
+        "accessibility audit"
+      ],
+      "evidencePaths": [
+        "parity/evidence/composer-input-attachments/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Extract complete composer command and attachment contracts",
+        "Implement"
+      ]
+    },
+    {
+      "id": "rendering-rich-content",
+      "area": "rendering",
+      "title": "Streaming Markdown and rich content",
+      "userVisibleBehavior": "Renders streaming Markdown, selectable text, code blocks, images, tables, math, Mermaid, citations, tool results, and long transcripts with stable scrolling.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "release-notes",
+          "path": "CHANGELOG.md",
+          "selector": "v1.1.1"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/src/components/chat"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/src/composables/message"
+        }
+      ],
+      "contracts": [
+        "Incremental rendering",
+        "Selection and copy",
+        "Bounded worker/concurrency behavior",
+        "Virtualized long-session scrolling",
+        "Safe rich-content rendering"
+      ],
+      "dependencies": [
+        "foundation-native-shell"
+      ],
+      "strategy": "Native layout for ordinary content; narrowly scoped WebView only for browser-semantic artifacts.",
+      "targetPaths": [
+        "crates/deepchat-ui",
+        "crates/deepchat-core"
+      ],
+      "verification": [
+        "golden render fixtures",
+        "streaming stress tests",
+        "100k-row scroll benchmark",
+        "security tests",
+        "visual comparison"
+      ],
+      "evidencePaths": [
+        "parity/evidence/rendering-rich-content/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Select license-safe Markdown/code/math/Mermaid implementations",
+        "Implement"
+      ]
+    },
+    {
+      "id": "storage-sqlcipher",
+      "area": "storage",
+      "title": "SQLCipher data compatibility, migration, backup, and recovery",
+      "userVisibleBehavior": "Opens and migrates synthetic reference databases, stores conversations and settings securely, creates/restores backups, and retains corrupt databases for recovery.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/data/connectionConfig.ts",
+          "selector": "configureSQLCipherCompatibility; applySQLitePassword; configureSQLiteConnection"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/data/databaseConnection.ts",
+          "selector": "openSQLiteDatabase"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/data/databaseStartupRecovery.ts",
+          "selector": "classifyDatabaseStartupFailure; assertNoOrphanWalSidecar; quarantineDatabaseFiles"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/data/mainDatabase.ts",
+          "selector": "schema_versions initialization; migrate"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/app/databaseStartup.ts",
+          "selector": "initializeMainDatabaseWithRecovery"
+        },
+        {
+          "kind": "source",
+          "path": "src/shared/contracts/databaseSecurity.ts",
+          "selector": "DatabaseStartupFailureKind; unlock/recovery payloads"
+        },
+        {
+          "kind": "test",
+          "path": "test/main/data/databaseConnection.test.ts",
+          "selector": "SQLCipher compatibility, UTF-8 key, WAL, orphan WAL"
+        },
+        {
+          "kind": "test",
+          "path": "test/main/data/databaseStartupRecovery.test.ts",
+          "selector": "classification, orphan WAL, quarantine"
+        },
+        {
+          "kind": "test",
+          "path": "test/main/data/mainDatabase.test.ts",
+          "selector": "schema_versions and migration behavior"
+        },
+        {
+          "kind": "test",
+          "path": "test/main/app/databaseStartup.test.ts",
+          "selector": "password retry and recovery decisions"
+        }
+      ],
+      "contracts": [
+        "Reference serialized identities and invariants",
+        "Transactional numbered migrations",
+        "SQLCipher fixture compatibility",
+        "Backup/restore",
+        "Corrupt-file retention",
+        "Platform secret storage"
+      ],
+      "dependencies": [],
+      "strategy": "storage-001 (done): implement real SQLCipher connection, startup classification, high-water-mark runner, quarantine, and injected Keychain/manual secret-store ports with generated fixtures only; storage-002a-1 (done): complete the production static catalog, physical/runtime owner topology, migrations through 69, finalizers, and required rebuild recovery; storage-002a-2 (done): complete schema diagnosis/repair, pre-repair backup, afterRepair hooks, and startup one-shot repair; later storage-002 tasks retain FTS/dynamic-DDL, backup/import/overwrite, encryption-change, and integration workflows.",
+      "targetPaths": [
+        "crates/deepchat-services",
+        "crates/deepchat-platform",
+        "tests/fixtures",
+        "parity/evidence/storage-sqlcipher"
+      ],
+      "verification": [
+        "cargo fmt --check",
+        "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+        "cargo test --workspace",
+        "generated SQLCipher fixture contract tests",
+        "startup classification/quarantine/no-secret logging tests",
+        "injected macOS Keychain/manual fallback tests",
+        "uv run python tools/parity-audit/validate.py"
+      ],
+      "evidencePaths": [
+        "parity/evidence/storage-sqlcipher/"
+      ],
+      "status": "implemented",
+      "platformStatus": {},
+      "remainingGaps": [
+        "storage-002a-2 implements schema diagnosis/repair and startup one-shot recovery; later storage-002 tasks implement the complete connection-scoped FTS/projection lifecycle",
+        "later storage-002 tasks implement backup/import, migration overwrite, and encryption-change workflows plus the end-to-end integration gate",
+        "Keychain service/account naming remains target policy; no frozen reference contract exists"
+      ]
+    },
+    {
+      "id": "provider-model-registry",
+      "area": "providers",
+      "title": "Provider, model, credentials, and custom headers",
+      "userVisibleBehavior": "Configures built-in and compatible providers, verifies staged credentials, manages models and custom headers, and starts a chat with the configured provider.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/provider"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/settings/components",
+          "selector": "provider settings"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/settings/components"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/05-settings-provider.smoke.spec.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/18-provider-readonly-route.smoke.spec.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/33-provider-custom-headers.smoke.spec.ts"
+        }
+      ],
+      "contracts": [
+        "Staged credential verification",
+        "Secret persistence",
+        "Cross-origin-safe custom headers",
+        "Model context/output limits",
+        "Dynamic model discovery"
+      ],
+      "dependencies": [
+        "storage-sqlcipher",
+        "chat-session-stream"
+      ],
+      "strategy": "Protocol fixtures first; real account tests only with explicit no-cost authorization.",
+      "targetPaths": [
+        "crates/deepchat-services",
+        "crates/deepchat-platform",
+        "crates/deepchat-ui"
+      ],
+      "verification": [
+        "provider fixture matrix",
+        "credential failure/recovery tests",
+        "custom header origin tests",
+        "model refresh persistence tests"
+      ],
+      "evidencePaths": [
+        "parity/evidence/provider-model-registry/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Generate provider/model registry baseline",
+        "Implement adapters"
+      ]
+    },
+    {
+      "id": "agent-tape-tools",
+      "area": "agent",
+      "title": "DeepChat Agent, Tape, tools, permissions, compaction, and trace inspector",
+      "userVisibleBehavior": "Runs DeepChat Agents in chat, minimal, and code modes with permission prompts, resumable Tape history, bounded tool execution, compaction, usage, and trace inspection.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/agent"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/tape"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/tool"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/src/components/tape-inspector"
+        },
+        {
+          "kind": "release-notes",
+          "path": "CHANGELOG.md",
+          "selector": "v1.1.1"
+        }
+      ],
+      "contracts": [
+        "Durable execution journal",
+        "Read/write tool ordering",
+        "Permission wait and recovery",
+        "Cancellation",
+        "Compaction provenance",
+        "Tool catalog virtualization"
+      ],
+      "dependencies": [
+        "chat-session-stream",
+        "storage-sqlcipher",
+        "composer-input-attachments"
+      ],
+      "strategy": "Port typed behavior, not TypeScript class layout.",
+      "targetPaths": [
+        "crates/deepchat-core",
+        "crates/deepchat-services",
+        "crates/deepchat-ui"
+      ],
+      "verification": [
+        "journal replay tests",
+        "permission lifecycle tests",
+        "cancellation tests",
+        "compaction fixtures",
+        "trace UI comparison"
+      ],
+      "evidencePaths": [
+        "parity/evidence/agent-tape-tools/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Extract full agent/tool/tape contract graph",
+        "Implement"
+      ]
+    },
+    {
+      "id": "code-mode-quickjs",
+      "area": "agent",
+      "title": "QuickJS Code Mode helper",
+      "userVisibleBehavior": "Executes model-generated Code Mode cells with the reference tool boundary, bounded output, timeout, cancellation, nested calls, permission waits, and crash recovery without running generated code in the GPUI process.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/shared/codeModeProtocol.ts"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/tool/codeMode/runCodeRuntimeManager.ts"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/tool/codeMode/codeModeUtilityHost.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/main/tool/codeMode"
+        }
+      ],
+      "contracts": [
+        "Dedicated helper subprocess",
+        "QuickJS runtime",
+        "Versioned JSON protocol",
+        "Opaque bindings",
+        "Tool whitelist",
+        "Source/output/store/memory limits",
+        "Interrupt and heartbeat",
+        "Timeout/cancel/kill",
+        "Idempotent cleanup"
+      ],
+      "dependencies": [
+        "agent-tape-tools"
+      ],
+      "strategy": "Replace reference node:vm implementation with QuickJS while preserving observable protocol semantics and tightening process isolation.",
+      "targetPaths": [
+        "crates/deepchat-code-host",
+        "crates/deepchat-contracts",
+        "crates/deepchat-services"
+      ],
+      "verification": [
+        "success/error fixtures",
+        "timeout and infinite-loop tests",
+        "OOM test",
+        "cancel and forced-kill tests",
+        "permission-yield/resume tests",
+        "crash/restart cleanup tests"
+      ],
+      "evidencePaths": [
+        "parity/evidence/code-mode-quickjs/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Freeze full reference protocol constants",
+        "Select license-safe QuickJS binding",
+        "Implement"
+      ]
+    },
+    {
+      "id": "mcp-apps-tools",
+      "area": "mcp",
+      "title": "MCP transports, resources, prompts, tools, OAuth, and Apps",
+      "userVisibleBehavior": "Installs and manages MCP servers, exposes resources/prompts/tools, handles OAuth and elicitation, and displays sandboxed MCP Apps.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/mcp"
+        },
+        {
+          "kind": "source",
+          "path": "src/shared/types/mcp.ts"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/src/pages/plugins/McpPluginsPage.vue"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/13-mcp-readonly-route.smoke.spec.ts"
+        }
+      ],
+      "contracts": [
+        "Stdio/SSE/StreamableHTTP",
+        "Server identity generation/binding hash",
+        "Tool execution assertions",
+        "OAuth credential security",
+        "MCP App origin/CSP/permission/lifecycle sandbox"
+      ],
+      "dependencies": [
+        "agent-tape-tools",
+        "webview-sandbox"
+      ],
+      "strategy": "Rust-native protocol clients and host services; WebView only for MCP Apps.",
+      "targetPaths": [
+        "crates/deepchat-services",
+        "crates/deepchat-webview",
+        "crates/deepchat-ui"
+      ],
+      "verification": [
+        "protocol fixture servers",
+        "OAuth callback fixtures",
+        "schema-compatibility tests",
+        "App sandbox/permission/lifecycle tests"
+      ],
+      "evidencePaths": [
+        "parity/evidence/mcp-apps-tools/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Extract MCP v1/v2 and App contracts",
+        "Implement"
+      ]
+    },
+    {
+      "id": "webview-sandbox",
+      "area": "security",
+      "title": "Restricted WebView host",
+      "userVisibleBehavior": "Displays only browser-semantic MCP Apps, artifacts, OAuth, and real browser pages with origin isolation, permission mediation, and deterministic teardown.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/desktop/browser"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/desktop/preview"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/mcp"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/provider/auth"
+        }
+      ],
+      "contracts": [
+        "Allowlisted surfaces only",
+        "Origin isolation",
+        "Navigation and popup policy",
+        "Permission policy",
+        "CSP/sandbox",
+        "Lifecycle teardown"
+      ],
+      "dependencies": [
+        "foundation-native-shell"
+      ],
+      "strategy": "Platform WebView abstraction; ordinary UI never enters this layer.",
+      "targetPaths": [
+        "crates/deepchat-webview",
+        "crates/deepchat-platform"
+      ],
+      "verification": [
+        "origin escape tests",
+        "permission tests",
+        "navigation tests",
+        "process/window teardown tests"
+      ],
+      "evidencePaths": [
+        "parity/evidence/webview-sandbox/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Select platform WebView implementations",
+        "Implement"
+      ]
+    },
+    {
+      "id": "acp-agents",
+      "area": "acp",
+      "title": "ACP agents and terminal authentication",
+      "userVisibleBehavior": "Discovers, installs, configures, authenticates, runs, stops, and resumes built-in and custom ACP agents with workspace, plan, tool, and terminal presentation.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/agent/acp"
+        },
+        {
+          "kind": "source",
+          "path": "src/shared/types/acp.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/17-acp-readonly-route.smoke.spec.ts"
+        }
+      ],
+      "contracts": [
+        "ACP wire protocol",
+        "Process lifecycle",
+        "Registry",
+        "Terminal auth",
+        "Permission requests",
+        "Workspace UI"
+      ],
+      "dependencies": [
+        "agent-tape-tools",
+        "managed-runtimes"
+      ],
+      "strategy": "Rust ACP client with explicit subprocess ownership.",
+      "targetPaths": [
+        "crates/deepchat-services",
+        "crates/deepchat-platform",
+        "crates/deepchat-ui"
+      ],
+      "verification": [
+        "fake ACP agent integration",
+        "auth lifecycle tests",
+        "kill/recovery tests",
+        "workspace UI comparison"
+      ],
+      "evidencePaths": [
+        "parity/evidence/acp-agents/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Extract full ACP registry and protocol contracts",
+        "Implement"
+      ]
+    },
+    {
+      "id": "skills-library",
+      "area": "skills",
+      "title": "Shared Skills library and per-Agent activation",
+      "userVisibleBehavior": "Installs Skills from folders, ZIP archives, URLs, and Git repositories; imports/exports compatible Skills; progressively loads and enables them per Agent.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/skill"
+        },
+        {
+          "kind": "source",
+          "path": "src/shared/types/skill.ts"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/src/pages/plugins/SkillsPluginsPage.vue"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/16-skills-readonly-route.smoke.spec.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/19-skill-sync-readonly-route.smoke.spec.ts"
+        }
+      ],
+      "contracts": [
+        "Package size/path limits",
+        "Safe extraction",
+        "Source provenance",
+        "Per-Agent activation",
+        "Progressive loading",
+        "Script runtime permissions"
+      ],
+      "dependencies": [
+        "storage-sqlcipher",
+        "managed-runtimes"
+      ],
+      "strategy": "Native archive/git/file handling with typed execution boundaries.",
+      "targetPaths": [
+        "crates/deepchat-services",
+        "crates/deepchat-ui"
+      ],
+      "verification": [
+        "malicious archive tests",
+        "install/import/export fixtures",
+        "activation persistence tests",
+        "script permission tests"
+      ],
+      "evidencePaths": [
+        "parity/evidence/skills-library/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Extract all package constants and compatibility mappings",
+        "Implement"
+      ]
+    },
+    {
+      "id": "memory-knowledge",
+      "area": "memory",
+      "title": "Agent Memory, directives, temporal state, and knowledge base",
+      "userVisibleBehavior": "Recalls and maintains Agent memory with directives, temporal truth, corrections, deletions, scopes, health diagnostics, and knowledge-base search.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/memory"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/knowledge"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/memory/data/tables/agentMemory.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/main/memory"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/12-knowledge-readonly-route.smoke.spec.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/14-nowledgemem-config-route.smoke.spec.ts"
+        }
+      ],
+      "contracts": [
+        "Temporal metadata",
+        "Durable corrections and tombstones",
+        "Typed scopes",
+        "OCC",
+        "Incremental maintenance",
+        "Vector/index recovery",
+        "Privacy controls"
+      ],
+      "dependencies": [
+        "storage-sqlcipher",
+        "provider-model-registry"
+      ],
+      "strategy": "Preserve serialized and privacy invariants; implementation may use different internal indexing components.",
+      "targetPaths": [
+        "crates/deepchat-services",
+        "crates/deepchat-core",
+        "crates/deepchat-ui"
+      ],
+      "verification": [
+        "reference fixture migration",
+        "correction/deletion persistence",
+        "temporal recall tests",
+        "index rebuild tests",
+        "privacy audit"
+      ],
+      "evidencePaths": [
+        "parity/evidence/memory-knowledge/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Extract all versioned memory migrations",
+        "Select vector/index implementation",
+        "Implement"
+      ]
+    },
+    {
+      "id": "browser-computer-use",
+      "area": "automation",
+      "title": "Browser, browser profile import, and Computer Use",
+      "userVisibleBehavior": "Runs browser sessions and Computer Use with snapshot-bound targeting, action verification, side-panel and picture-in-picture previews, cancellation, runtime integrity checks, and browser-session import.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/desktop/browser"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/desktop/computerUse"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/08-browser-route.smoke.spec.ts"
+        }
+      ],
+      "contracts": [
+        "Snapshot-bound targets",
+        "Post-action verification",
+        "Cancellation",
+        "Runtime integrity/quarantine",
+        "Profile/cookie isolation",
+        "Preview fallback"
+      ],
+      "dependencies": [
+        "webview-sandbox",
+        "agent-tape-tools",
+        "managed-runtimes"
+      ],
+      "strategy": "Keep native driver processes isolated; never import the user's real browser profile in tests.",
+      "targetPaths": [
+        "crates/deepchat-services",
+        "crates/deepchat-platform",
+        "crates/deepchat-ui"
+      ],
+      "verification": [
+        "isolated browser fixture",
+        "stale-target rejection",
+        "cancel/kill tests",
+        "preview fallback tests",
+        "platform runtime smoke"
+      ],
+      "evidencePaths": [
+        "parity/evidence/browser-computer-use/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Freeze driver protocol",
+        "Implement"
+      ]
+    },
+    {
+      "id": "workspace-terminal-files",
+      "area": "workspace",
+      "title": "Workspace navigation, files, watcher, terminal, and PTY",
+      "userVisibleBehavior": "Selects project directories, browses and watches files, runs bounded shell/PTY sessions, authenticates terminal workflows, and presents output in the workspace panel.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/workspace"
+        },
+        {
+          "kind": "source",
+          "path": "src/shared/commandShell.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/21-project-readonly-route.smoke.spec.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/29-workspace-readonly-route.smoke.spec.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/30-workspace-watcher-events.smoke.spec.ts"
+        }
+      ],
+      "contracts": [
+        "Platform shell profiles",
+        "Bounded stdin/output",
+        "Explicit shell dialect",
+        "Watcher lifecycle",
+        "Path authorization",
+        "PTY cancellation"
+      ],
+      "dependencies": [
+        "foundation-native-shell"
+      ],
+      "strategy": "Platform adapters behind typed capability and path-grant boundaries.",
+      "targetPaths": [
+        "crates/deepchat-platform",
+        "crates/deepchat-services",
+        "crates/deepchat-ui"
+      ],
+      "verification": [
+        "shell profile matrix",
+        "path traversal tests",
+        "watcher integration tests",
+        "PTY resize/kill tests"
+      ],
+      "evidencePaths": [
+        "parity/evidence/workspace-terminal-files/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Extract file and terminal routes",
+        "Implement"
+      ]
+    },
+    {
+      "id": "ocr-media-artifacts",
+      "area": "media",
+      "title": "Offline OCR, media generation, and durable artifacts",
+      "userVisibleBehavior": "Processes image/PDF attachments with Auto/Text/OCR modes and caching, generates supported media, and persists generated artifacts across restart and follow-up actions.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/ocr"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/src/components/artifacts"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/mcp/inMemoryServers/artifactsServer.ts"
+        },
+        {
+          "kind": "release-notes",
+          "path": "CHANGELOG.md",
+          "selector": "v1.1.0 and v1.1.1"
+        }
+      ],
+      "contracts": [
+        "Offline OCR",
+        "Page-aware truncation",
+        "Cancellation",
+        "Cache reuse",
+        "Artifact persistence",
+        "Attachment replay"
+      ],
+      "dependencies": [
+        "composer-input-attachments",
+        "storage-sqlcipher",
+        "provider-model-registry"
+      ],
+      "strategy": "License-safe native OCR/media adapters with deterministic fixture tests.",
+      "targetPaths": [
+        "crates/deepchat-services",
+        "crates/deepchat-ui"
+      ],
+      "verification": [
+        "image/PDF golden fixtures",
+        "cancel/cache/restart tests",
+        "artifact persistence tests",
+        "performance benchmark"
+      ],
+      "evidencePaths": [
+        "parity/evidence/ocr-media-artifacts/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Select OCR implementation",
+        "Extract media provider contracts",
+        "Implement"
+      ]
+    },
+    {
+      "id": "scheduler-remote-hooks",
+      "area": "automation",
+      "title": "Scheduled tasks, remote control, notifications, and hooks",
+      "userVisibleBehavior": "Runs Cron Jobs with durable claims and delivery, supports Telegram/Feishu/QQBot/Discord/Weixin remote workflows, and delivers bounded notifications/hooks.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/scheduler"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/remote"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/hook"
+        },
+        {
+          "kind": "source",
+          "path": "src/shared/cronJobs.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/11-remote-control-readonly-route.smoke.spec.ts"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/27-hooks-notification-command.smoke.spec.ts"
+        }
+      ],
+      "contracts": [
+        "Scheduler heartbeat and claims",
+        "At-most-once visible delivery",
+        "Remote authentication/binding",
+        "Pending interaction handling",
+        "Bounded hook commands",
+        "Restart recovery"
+      ],
+      "dependencies": [
+        "agent-tape-tools",
+        "storage-sqlcipher"
+      ],
+      "strategy": "Dedicated scheduler/helper ownership with local fake channel servers in tests.",
+      "targetPaths": [
+        "crates/deepchat-services",
+        "crates/deepchat-platform",
+        "crates/deepchat-ui"
+      ],
+      "verification": [
+        "clock-controlled scheduler tests",
+        "crash/restart claim tests",
+        "fake remote channel flows",
+        "bounded hook tests"
+      ],
+      "evidencePaths": [
+        "parity/evidence/scheduler-remote-hooks/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Extract channel and delivery contracts",
+        "Implement"
+      ]
+    },
+    {
+      "id": "window-platform-integrations",
+      "area": "platform",
+      "title": "Windows, tabs, tray, shortcuts, deep links, single instance, and privacy",
+      "userVisibleBehavior": "Matches native window behavior, tabs and moved-tab windows, tray, configurable shortcuts, deep links, single-instance routing, content protection, proxy, notifications, and close/hide semantics.",
+      "platforms": [
+        "macos-arm64",
+        "macos-x64",
+        "windows-arm64",
+        "windows-x64",
+        "linux-arm64",
+        "linux-x64"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/desktop/window"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/desktop/tab.ts"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/desktop/tray.ts"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/desktop/shortcutKeySettings.ts"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/deeplink"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/appMain.ts"
+        }
+      ],
+      "contracts": [
+        "deepchat:// start/mcp/provider",
+        "autoSend remains disabled",
+        "Single-instance forwarding",
+        "Close/hide platform semantics",
+        "Configurable shortcuts",
+        "Content protection and proxy"
+      ],
+      "dependencies": [
+        "foundation-native-shell"
+      ],
+      "strategy": "Native platform APIs behind interfaces; no Electron compatibility layer.",
+      "targetPaths": [
+        "crates/deepchat-platform",
+        "crates/deepchat-app",
+        "crates/deepchat-ui"
+      ],
+      "verification": [
+        "platform UI smoke",
+        "cold/warm deep-link tests",
+        "shortcut conflicts",
+        "tray and close/hide tests",
+        "privacy/proxy tests"
+      ],
+      "evidencePaths": [
+        "parity/evidence/window-platform-integrations/"
+      ],
+      "status": "identified",
+      "platformStatus": {
+        "macos-arm64": "identified",
+        "macos-x64": "identified",
+        "windows-arm64": "identified",
+        "windows-x64": "identified",
+        "linux-arm64": "identified",
+        "linux-x64": "identified"
+      },
+      "remainingGaps": [
+        "Extract complete OS branch behavior",
+        "Implement"
+      ]
+    },
+    {
+      "id": "settings-plugins-i18n",
+      "area": "settings",
+      "title": "Settings, Plugins Hub, onboarding, themes, and localization",
+      "userVisibleBehavior": "Provides the frozen release's settings routes, Plugins Hub, onboarding, light/dark themes, fonts, locale selection, validation, and error feedback.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/shared/settingsNavigation.ts"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/settings/settingsRouteComponents.ts"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/src/router/index.ts"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/src/i18n"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs/04-settings-navigation.smoke.spec.ts"
+        }
+      ],
+      "contracts": [
+        "22 settings route names",
+        "Plugin catalog/detail routes",
+        "20 locale catalogs",
+        "Theme/font persistence",
+        "Typed validation and recovery"
+      ],
+      "dependencies": [
+        "foundation-native-shell"
+      ],
+      "strategy": "Native GPUI forms and navigation using shared semantic components.",
+      "targetPaths": [
+        "crates/deepchat-ui",
+        "crates/deepchat-services"
+      ],
+      "verification": [
+        "route/navigation coverage",
+        "locale-key parity audit",
+        "theme/font screenshots",
+        "keyboard/accessibility form audit"
+      ],
+      "evidencePaths": [
+        "parity/evidence/settings-plugins-i18n/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Enumerate every setting field and plugin surface",
+        "Implement"
+      ]
+    },
+    {
+      "id": "managed-runtimes",
+      "area": "runtime",
+      "title": "Managed Node.js and uv toolchains",
+      "userVisibleBehavior": "Detects, installs, verifies, repairs, and recovers managed runtimes used by compatible MCP, Skills, ACP, OCR, and CLI workflows.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "scripts/install-runtime.mjs"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/toolchains"
+        },
+        {
+          "kind": "source",
+          "path": "src/renderer/settings/components/ToolchainsSettings.vue"
+        }
+      ],
+      "contracts": [
+        "Version pinning",
+        "Integrity verification",
+        "Atomic install",
+        "Repair/recovery",
+        "Platform/architecture assets",
+        "No temporary Node bridge in final core application"
+      ],
+      "dependencies": [
+        "storage-sqlcipher"
+      ],
+      "strategy": "Managed Node is a user-facing runtime for compatible ecosystem features, not a hidden implementation dependency of the Rust core.",
+      "targetPaths": [
+        "crates/deepchat-services",
+        "crates/deepchat-platform",
+        "crates/deepchat-ui"
+      ],
+      "verification": [
+        "offline/missing/corrupt runtime fixtures",
+        "integrity tests",
+        "atomic replacement tests",
+        "platform smoke"
+      ],
+      "evidencePaths": [
+        "parity/evidence/managed-runtimes/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Freeze runtime registry and integrity metadata",
+        "Implement"
+      ]
+    },
+    {
+      "id": "cli-local-control",
+      "area": "cli",
+      "title": "DeepChat CLI and scoped local control",
+      "userVisibleBehavior": "Provides inference, media, OCR, artifacts, Agent runs, provider/model administration, settings, Skills, MCP, and scoped local-control streaming from the bundled CLI.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/main/cli"
+        },
+        {
+          "kind": "source",
+          "path": "src/shared/contracts/localControl.ts"
+        },
+        {
+          "kind": "source",
+          "path": "scripts/build-cli.mjs"
+        },
+        {
+          "kind": "release-notes",
+          "path": "CHANGELOG.md",
+          "selector": "v1.1.0"
+        }
+      ],
+      "contracts": [
+        "Versioned local RPC",
+        "Token and scope authorization",
+        "Bounded uploads/streams",
+        "Human vs Agent CLI authority",
+        "No secret disclosure"
+      ],
+      "dependencies": [
+        "chat-session-stream",
+        "provider-model-registry",
+        "agent-tape-tools"
+      ],
+      "strategy": "Native Rust CLI sharing typed contracts with the desktop services.",
+      "targetPaths": [
+        "crates/deepchat-cli",
+        "crates/deepchat-contracts",
+        "crates/deepchat-services"
+      ],
+      "verification": [
+        "CLI command matrix",
+        "scope/expiry tests",
+        "stream cancellation tests",
+        "cross-platform package smoke"
+      ],
+      "evidencePaths": [
+        "parity/evidence/cli-local-control/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Enumerate every CLI command and route scope",
+        "Implement"
+      ]
+    },
+    {
+      "id": "release-distribution",
+      "area": "release",
+      "title": "Cross-platform packaging, signing, updater, and release checks",
+      "userVisibleBehavior": "Installs, starts, updates, and uninstalls through the supported native packages on six platform/architecture combinations.",
+      "platforms": [
+        "macos-arm64",
+        "macos-x64",
+        "windows-arm64",
+        "windows-x64",
+        "linux-arm64",
+        "linux-x64"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "configuration",
+          "path": "electron-builder.yml"
+        },
+        {
+          "kind": "workflow",
+          "path": ".github/workflows/release.yml"
+        },
+        {
+          "kind": "workflow",
+          "path": ".github/workflows/_package-macos.yml"
+        },
+        {
+          "kind": "workflow",
+          "path": ".github/workflows/_package-windows.yml"
+        },
+        {
+          "kind": "workflow",
+          "path": ".github/workflows/_package-linux.yml"
+        },
+        {
+          "kind": "workflow",
+          "path": ".github/workflows/package-regression.yml"
+        }
+      ],
+      "contracts": [
+        "macOS DMG/ZIP",
+        "Windows NSIS",
+        "Linux AppImage/tar.gz",
+        "Fail-closed asset verification",
+        "Updater channel and downgrade rules",
+        "Signing/notarization",
+        "Installer size regression"
+      ],
+      "dependencies": [
+        "window-platform-integrations",
+        "settings-plugins-i18n",
+        "managed-runtimes"
+      ],
+      "strategy": "Native packaging pipeline with reproducible locked dependencies and release artifact verification.",
+      "targetPaths": [
+        ".github/workflows",
+        "packaging",
+        "scripts"
+      ],
+      "verification": [
+        "six native builds",
+        "cold-start/core-flow smoke",
+        "signature/notarization checks",
+        "update channel tests",
+        "installer regression checks"
+      ],
+      "evidencePaths": [
+        "parity/evidence/release-distribution/"
+      ],
+      "status": "identified",
+      "platformStatus": {
+        "macos-arm64": "identified",
+        "macos-x64": "identified",
+        "windows-arm64": "identified",
+        "windows-x64": "identified",
+        "linux-arm64": "identified",
+        "linux-x64": "identified"
+      },
+      "remainingGaps": [
+        "Select packaging/updater stack",
+        "Provision CI runners and signing only when external secrets are available",
+        "Implement"
+      ]
+    },
+    {
+      "id": "full-parity-audit",
+      "area": "audit",
+      "title": "Executable discovery, rediscovery, and zero-gap completion audit",
+      "userVisibleBehavior": "No independent user-facing behavior; proves every frozen reference surface is mapped and every applicable feature is verified.",
+      "platforms": [
+        "all"
+      ],
+      "referenceEvidence": [
+        {
+          "kind": "source",
+          "path": "src/shared/contracts",
+          "selector": "routes and events"
+        },
+        {
+          "kind": "source",
+          "path": "src/main/data/schemaCatalog.ts",
+          "selector": "CATALOG_DEFINITIONS"
+        },
+        {
+          "kind": "test",
+          "path": "test/e2e/specs"
+        },
+        {
+          "kind": "release-notes",
+          "path": "CHANGELOG.md",
+          "selector": "v1.1.1"
+        }
+      ],
+      "contracts": [
+        "Zero unmapped surfaces",
+        "No discovered/specified/implemented/blocked terminal items",
+        "No unapproved waivers",
+        "Final six-entry independent omission audit",
+        "Clean pushed main"
+      ],
+      "dependencies": [
+        "foundation-native-shell",
+        "chat-session-stream",
+        "composer-input-attachments",
+        "rendering-rich-content",
+        "storage-sqlcipher",
+        "provider-model-registry",
+        "agent-tape-tools",
+        "code-mode-quickjs",
+        "mcp-apps-tools",
+        "webview-sandbox",
+        "acp-agents",
+        "skills-library",
+        "memory-knowledge",
+        "browser-computer-use",
+        "workspace-terminal-files",
+        "ocr-media-artifacts",
+        "scheduler-remote-hooks",
+        "window-platform-integrations",
+        "settings-plugins-i18n",
+        "managed-runtimes",
+        "cli-local-control",
+        "release-distribution"
+      ],
+      "strategy": "Executable scanners plus independent dynamic rediscovery and requirement-by-requirement evidence audit.",
+      "targetPaths": [
+        "tools/parity-audit",
+        "parity/reference-baseline.json",
+        "parity/manifest.json",
+        "parity/evidence"
+      ],
+      "verification": [
+        "cargo run -p parity-audit -- check",
+        "full static rediscovery",
+        "full dynamic rediscovery",
+        "six-entry independent omission audit"
+      ],
+      "evidencePaths": [
+        "parity/evidence/full-parity-audit/"
+      ],
+      "status": "identified",
+      "platformStatus": {},
+      "remainingGaps": [
+        "Implement scanners",
+        "Expand the baseline",
+        "Complete every feature"
+      ]
+    }
+  ],
+  "evidenceContract": {
+    "object": "{kind,path,selector?}",
+    "kinds": [
+      "source",
+      "test",
+      "release-notes",
+      "workflow",
+      "configuration"
+    ],
+    "allPaths": "must exist at referenceCommit"
+  }
+}

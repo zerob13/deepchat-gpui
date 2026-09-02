@@ -1,0 +1,15 @@
+[package]
+name = "deepchat-platform"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+secrecy = { workspace = true }
+thiserror = { workspace = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+security-framework = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
